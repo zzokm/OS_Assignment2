@@ -19,7 +19,7 @@ public class ACSScheduler implements Scheduler {
 
     private List<Process> originals = new ArrayList<>();
 
-    private final List<TimeStepRecord> trace = new ArrayList<>();
+    private final List<model.TimeStepRecord> trace = new ArrayList<>();
     private final List<Process> finished = new ArrayList<>();
     private boolean hasRun = false;
 
@@ -93,7 +93,7 @@ public class ACSScheduler implements Scheduler {
     }
 
     @Override
-    public List<TimeStepRecord> getExecutionTrace() {
+    public List<model.TimeStepRecord> getExecutionTrace() {
         return Collections.unmodifiableList(trace);
     }
 
@@ -103,6 +103,11 @@ public class ACSScheduler implements Scheduler {
             throw new IllegalStateException("Call runSimulation() first");
         }
         return MetricsEngine.compute(finished);
+    }
+
+    @Override
+    public List<Process> getProcesses() {
+        return getCompletedProcesses();
     }
 
     public List<Process> getCompletedProcesses() {
@@ -260,7 +265,7 @@ public class ACSScheduler implements Scheduler {
         events.append(message);
     }
 
-    private TimeStepRecord snapshotRecord() {
+    private model.TimeStepRecord snapshotRecord() {
         List<Process> t1 = tier1.snapshot();
         List<Process> t2 = new ArrayList<>();
         for (Process p : tier2.getSnapshot()) {
@@ -288,6 +293,6 @@ public class ACSScheduler implements Scheduler {
         String event = events.toString();
         events.setLength(0);
 
-        return new TimeStepRecord(clock, who, event, t1, t2);
+        return new model.TimeStepRecord(clock, who, event, t1, t2);
     }
 }

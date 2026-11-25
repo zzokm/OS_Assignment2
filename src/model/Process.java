@@ -18,6 +18,9 @@ public final class Process {
     private int effectivePriority;
     private int firstStartTime = -1;
     private int finishTime = -1;
+    private int turnaroundTime = -1;
+    private int waitingTime = -1;
+    private int responseTime = -1;
     private State state = State.NEW;
 
     public Process(String id, int arrivalTime, int burstTime, int initialPriority) {
@@ -29,22 +32,25 @@ public final class Process {
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
         this.initialPriority = initialPriority;
-        remainingBurstTime = burstTime;
-        effectivePriority = initialPriority;
-        stateHistory.add(new StateChange(0, State.NEW));
+        this.remainingBurstTime = burstTime;
+        this.effectivePriority = initialPriority;
+        this.stateHistory.add(new StateChange(0, State.NEW));
     }
 
     public Process(Process source) {
-        id = source.id;
-        arrivalTime = source.arrivalTime;
-        burstTime = source.burstTime;
-        initialPriority = source.initialPriority;
-        remainingBurstTime = source.remainingBurstTime;
-        effectivePriority = source.effectivePriority;
-        firstStartTime = source.firstStartTime;
-        finishTime = source.finishTime;
-        state = source.state;
-        stateHistory.addAll(source.stateHistory);
+        this.id = source.id;
+        this.arrivalTime = source.arrivalTime;
+        this.burstTime = source.burstTime;
+        this.initialPriority = source.initialPriority;
+        this.remainingBurstTime = source.remainingBurstTime;
+        this.effectivePriority = source.effectivePriority;
+        this.firstStartTime = source.firstStartTime;
+        this.finishTime = source.finishTime;
+        this.turnaroundTime = source.turnaroundTime;
+        this.waitingTime = source.waitingTime;
+        this.responseTime = source.responseTime;
+        this.state = source.state;
+        this.stateHistory.addAll(source.stateHistory);
     }
 
     public String getId() { return id; }
@@ -58,22 +64,47 @@ public final class Process {
     public State getState() { return state; }
     public List<StateChange> getStateHistory() { return List.copyOf(stateHistory); }
 
+    public void setRemainingBurstTime(int remainingBurstTime) {
+        this.remainingBurstTime = remainingBurstTime;
+    }
+
     public void setEffectivePriority(int effectivePriority) {
         this.effectivePriority = effectivePriority;
     }
 
-    /** Returns -1 until the process has finished. */
+    public void setFirstStartTime(int firstStartTime) {
+        this.firstStartTime = firstStartTime;
+    }
+
+    public void setFinishTime(int finishTime) {
+        this.finishTime = finishTime;
+    }
+
+    public void setTurnaroundTime(int turnaroundTime) {
+        this.turnaroundTime = turnaroundTime;
+    }
+
+    public void setWaitingTime(int waitingTime) {
+        this.waitingTime = waitingTime;
+    }
+
+    public void setResponseTime(int responseTime) {
+        this.responseTime = responseTime;
+    }
+
     public int getTurnaroundTime() {
+        if (turnaroundTime >= 0) return turnaroundTime;
         return finishTime < 0 ? -1 : finishTime - arrivalTime;
     }
 
-    /** Returns -1 until the process has finished. */
     public int getWaitingTime() {
-        return finishTime < 0 ? -1 : getTurnaroundTime() - burstTime;
+        if (waitingTime >= 0) return waitingTime;
+        int tat = getTurnaroundTime();
+        return tat < 0 ? -1 : tat - burstTime;
     }
 
-    /** Returns -1 until the process has used the CPU. */
     public int getResponseTime() {
+        if (responseTime >= 0) return responseTime;
         return firstStartTime < 0 ? -1 : firstStartTime - arrivalTime;
     }
 

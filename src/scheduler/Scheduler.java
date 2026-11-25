@@ -1,6 +1,7 @@
 package scheduler;
 
 import java.util.List;
+import metrics.SchedulingMetrics;
 import model.Process;
 
 public interface Scheduler {
@@ -13,21 +14,27 @@ public interface Scheduler {
     void loadProcesses(List<Process> processes);
 
     /** Advance one tick. Return false when there is no tick left to execute. */
-    boolean step();
+    default boolean step() {
+        return false;
+    }
 
     /** Run the loaded simulation from its current position through completion. */
     default void schedule() {
-        while (step()) {
-            // Each step records its own result.
-        }
+        runSimulation();
     }
 
     default void runSimulation() {
-        schedule();
+        while (step()) {
+            // Step loop
+        }
     }
 
-    List<TimeStepRecord> getExecutionTrace();
+    List<?> getExecutionTrace();
 
-    /** Return process snapshots in input order, including metrics as they become available. */
+    /** Return process snapshots in input or completion order, including metrics. */
     List<Process> getProcesses();
+
+    default SchedulingMetrics getMetrics() {
+        return metrics.MetricsEngine.compute(getProcesses());
+    }
 }
