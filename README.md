@@ -1,6 +1,6 @@
 # OS_Assignment2
 
-CS241: Operating Systems – Assignment 2
+CS241: Operating Systems - Assignment 2
 Cloud-Cluster CPU Scheduling Simulator
 
 ## Documentation

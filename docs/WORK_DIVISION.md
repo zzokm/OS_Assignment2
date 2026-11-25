@@ -1,5 +1,5 @@
-# CS241: Operating Systems – Assignment 2
-## Cloud-Cluster CPU Scheduling — Equitable 5-Student Work Division
+# CS241: Operating Systems - Assignment 2
+## Cloud-Cluster CPU Scheduling - Equitable 5-Student Work Division
 
 ---
 
@@ -202,7 +202,7 @@ ACS ..> GUI_CANVAS : Timeline Data
      - Implement `TestRunner.java` validating:
        - **Test Case 1 ($Q=3, CS=0$):** Validates Average $TAT = 8.67$, Average $WT = 4.33$.
        - **Test Case 2 ($Q=3, CS=1$):** Validates Average $TAT = 16.00$, Average $WT = 11.00$.
-  3. **GUI Part 1 — Application Shell & Controls (`MainFrame.java`, `InputControlPanel.java`):**
+  3. **GUI Part 1 - Application Shell & Controls (`MainFrame.java`, `InputControlPanel.java`):**
      - Builds the main window layout, process input table ($AT, BT$, priority), and parameter selectors ($Q, CS$, algorithm dropdown).
      - Implements simulation playback buttons: "Run", "Step-by-Step", "Pause", "Reset", and speed slider.
      - Displays metrics summary cards ($Avg WT$, $Avg TAT$) and process results table.
@@ -226,7 +226,7 @@ ACS ..> GUI_CANVAS : Timeline Data
      - Writes the formal analytical report required by the PDF:
        > *"Discuss the trade-offs of the ACS algorithm's Tier 2 demotion. How does this impact CPU utilization versus Response Time?"*
      - Thoroughly analyzes: CPU utilization efficiency (fewer context switches for long batch jobs) vs latency degradation for newly arriving interactive jobs.
-  3. **GUI Part 2 — Custom Visual Gantt Canvas (`GanttChartPanel.java`, `QueueVisualizer.java`):**
+  3. **GUI Part 2 - Custom Visual Gantt Canvas (`GanttChartPanel.java`, `QueueVisualizer.java`):**
      - Custom 2D graphics canvas (`JPanel` with custom `paintComponent`):
        - Renders dynamic horizontal Gantt chart timeline with colored process execution bars.
        - Renders striped/shaded blocks for Context Switches ($CS$).
