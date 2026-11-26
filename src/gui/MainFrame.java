@@ -1,11 +1,9 @@
 package gui;
 
 /**
- * Standard launcher forwarding to JavaFX MainApp.
+ * Launcher wrapper so running either MainFrame or MainApp opens the JavaFX GUI.
  */
-public final class MainFrame {
-    private MainFrame() {}
-
+public class MainFrame {
     public static void main(String[] args) {
         MainApp.main(args);
     }
