@@ -108,7 +108,7 @@ public final class Process {
         return firstStartTime < 0 ? -1 : firstStartTime - arrivalTime;
     }
 
-    /** Admit a new process or return a preempted process to a ready queue. */
+    
     public void markReady(int time) {
         if ((state != State.NEW && state != State.RUNNING) || time < arrivalTime) {
             throw new IllegalStateException("Process cannot become ready at time " + time);
@@ -116,7 +116,7 @@ public final class Process {
         changeState(time, State.READY);
     }
 
-    /** Execute during [time, time + 1), completing at the end if the burst is exhausted. */
+    
     public void runOneTick(int time) {
         if (state != State.READY && state != State.RUNNING) {
             throw new IllegalStateException("Process must be ready or running to execute");

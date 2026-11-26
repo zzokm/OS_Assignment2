@@ -10,9 +10,6 @@ import output.TraceTableFormatter;
 import scheduler.SJFScheduler;
 import scheduler.acs.ACSScheduler;
 
-/**
- * Automated verification suite for SJF, ACS (Tiers 1-3), and MetricsEngine.
- */
 public final class TestRunner {
     private static int passed = 0;
     private static int failed = 0;
@@ -129,7 +126,7 @@ public final class TestRunner {
         SchedulingMetrics metrics = sjf.getMetrics();
         Map<String, Process> byId = mapById(metrics.getProcesses());
 
-        // T=0..2 P1(rem=4), T=2..3 CS, T=3..5 P2(FT=5), T=5..6 CS, T=6..10 P1(FT=10)
+        //t=0..2 p1(rem=4), t=2..3 cs, t=3..5 p2(ft=5), t=5..6 cs, t=6..10 p1(ft=10)
         assertEquals(5, byId.get("P2").getFinishTime(), "SJF(CS=1) P2 FT");
         assertEquals(10, byId.get("P1").getFinishTime(), "SJF(CS=1) P1 FT");
     }

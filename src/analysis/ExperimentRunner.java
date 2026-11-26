@@ -14,7 +14,6 @@ import scheduler.SJFScheduler;
 import scheduler.Scheduler;
 import scheduler.acs.ACSScheduler;
 
-
 public class ExperimentRunner {
 
     public static void main(String[] args) {
@@ -59,7 +58,7 @@ public class ExperimentRunner {
                 SchedulingMetrics metrics = acs.getMetrics();
                 List<TimeStepRecord> trace = acs.getExecutionTrace();
 
-                // Last record in ACS trace is the completion IDLE snapshot
+                //last record in acs trace is the completion idle snapshot
                 int makespan = Math.max(1, trace.size() - 1);
                 int busyTicks = 0;
                 int csTicks = 0;

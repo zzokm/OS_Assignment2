@@ -8,9 +8,6 @@ import model.Process;
 import model.TimeStepRecord;
 import scheduler.Scheduler;
 
-/**
- * Formats execution traces and scheduling metric tables for console and GUI display.
- */
 public final class TraceTableFormatter {
     private TraceTableFormatter() {}
 

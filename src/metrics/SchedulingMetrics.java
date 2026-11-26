@@ -3,9 +3,6 @@ package metrics;
 import java.util.List;
 import model.Process;
 
-/**
- * Holds per-process scheduling metrics and overall workload averages.
- */
 public final class SchedulingMetrics {
     private final List<Process> processes;
     private final double averageTurnaroundTime;

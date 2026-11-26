@@ -2,9 +2,6 @@ package model;
 
 import java.util.List;
 
-/**
- * Snapshot of the ACS scheduler state at a single simulation time unit.
- */
 public record TimeStepRecord(
         int time,
         String runningProcessId,

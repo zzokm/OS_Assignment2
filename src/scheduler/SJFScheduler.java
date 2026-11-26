@@ -8,10 +8,6 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import model.Process;
 
-/**
- * Preemptive shortest remaining time first. Ready-queue ties use arrival time,
- * then input order. A running process keeps the CPU on a tie.
- */
 public final class SJFScheduler implements Scheduler {
     private final int contextSwitchTime;
     private final List<TimeStepRecord> trace = new ArrayList<>();
@@ -29,10 +25,7 @@ public final class SJFScheduler implements Scheduler {
     private Process running;
     private Process lastRunning;
 
-    /**
-     * Charges a switch between consecutive runs of different processes.
-     * Initial dispatch and dispatch after an idle tick have no switch cost.
-     */
+    
     public SJFScheduler(int contextSwitchTime) {
         if (contextSwitchTime < 0) {
             throw new IllegalArgumentException("Context switch time must be nonnegative");
@@ -91,7 +84,7 @@ public final class SJFScheduler implements Scheduler {
             }
             if (contextSwitchTime > 0 && lastRunning != null
                     && lastRunning != processes.get(ready.peek())) {
-                // Leave candidates in the queue so arrivals during the switch can compete.
+                //leave candidates in the queue so arrivals during the switch can compete.
                 lastRunning = null;
                 switchTicksLeft = contextSwitchTime;
                 recordSwitchTick();

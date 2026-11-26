@@ -32,7 +32,6 @@ import scheduler.SJFScheduler;
 import scheduler.Scheduler;
 import scheduler.acs.ACSScheduler;
 
-
 public class MainController {
 
     public static class ProcessRow {
@@ -96,6 +95,7 @@ public class MainController {
     private boolean isAcsMode = true;
     private int currentStepIndex = -1;
     private Timeline playTimeline;
+    private String lastSimulatedConfigSignature;
 
     @FXML
     public void initialize() {
@@ -107,6 +107,10 @@ public class MainController {
 
         quantumSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 3));
         csSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 50, 1));
+
+        quantumSpinner.valueProperty().addListener((obs, oldVal, newVal) -> stopPlayback());
+        csSpinner.valueProperty().addListener((obs, oldVal, newVal) -> stopPlayback());
+        algorithmBox.valueProperty().addListener((obs, oldVal, newVal) -> stopPlayback());
 
         setupProcessTable();
         setupMetricsTable();
@@ -120,19 +124,31 @@ public class MainController {
 
         colId.setCellValueFactory(data -> data.getValue().id);
         colId.setCellFactory(TextFieldTableCell.forTableColumn());
-        colId.setOnEditCommit(e -> e.getRowValue().setId(e.getNewValue()));
+        colId.setOnEditCommit(e -> {
+            stopPlayback();
+            e.getRowValue().setId(e.getNewValue());
+        });
 
         colAt.setCellValueFactory(data -> data.getValue().at.asObject());
         colAt.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        colAt.setOnEditCommit(e -> e.getRowValue().setAt(e.getNewValue()));
+        colAt.setOnEditCommit(e -> {
+            stopPlayback();
+            e.getRowValue().setAt(e.getNewValue());
+        });
 
         colBt.setCellValueFactory(data -> data.getValue().bt.asObject());
         colBt.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        colBt.setOnEditCommit(e -> e.getRowValue().setBt(e.getNewValue()));
+        colBt.setOnEditCommit(e -> {
+            stopPlayback();
+            e.getRowValue().setBt(e.getNewValue());
+        });
 
         colPri.setCellValueFactory(data -> data.getValue().pri.asObject());
         colPri.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        colPri.setOnEditCommit(e -> e.getRowValue().setPri(e.getNewValue()));
+        colPri.setOnEditCommit(e -> {
+            stopPlayback();
+            e.getRowValue().setPri(e.getNewValue());
+        });
     }
 
     private void setupMetricsTable() {
@@ -145,14 +161,31 @@ public class MainController {
         mColRt.setCellValueFactory(data -> new SimpleIntegerProperty(data.getValue().getResponseTime()));
     }
 
+    private String getCurrentConfigSignature() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(algorithmBox.getSelectionModel().getSelectedIndex()).append(";");
+        sb.append(quantumSpinner.getValue()).append(";");
+        sb.append(csSpinner.getValue()).append(";");
+        for (ProcessRow row : processRows) {
+            String id = row.getId() == null ? "" : row.getId().trim();
+            sb.append(id).append(",")
+              .append(row.getAt()).append(",")
+              .append(row.getBt()).append(",")
+              .append(row.getPri()).append(";");
+        }
+        return sb.toString();
+    }
+
     @FXML
     private void handleAddProcess() {
+        stopPlayback();
         int next = processRows.size() + 1;
         processRows.add(new ProcessRow("P" + next, 0, 4, 1));
     }
 
     @FXML
     private void handleRemoveProcess() {
+        stopPlayback();
         int selected = processTable.getSelectionModel().getSelectedIndex();
         if (selected >= 0) {
             processRows.remove(selected);
@@ -163,6 +196,7 @@ public class MainController {
 
     @FXML
     private void handleLoadTc1() {
+        stopPlayback();
         processRows.setAll(
                 new ProcessRow("P1", 0, 4, 2),
                 new ProcessRow("P2", 1, 7, 3),
@@ -170,10 +204,12 @@ public class MainController {
         );
         quantumSpinner.getValueFactory().setValue(3);
         csSpinner.getValueFactory().setValue(0);
+        resetSimulationState();
     }
 
     @FXML
     private void handleLoadTc2() {
+        stopPlayback();
         processRows.setAll(
                 new ProcessRow("P1", 0, 5, 4),
                 new ProcessRow("P2", 1, 6, 2),
@@ -181,6 +217,7 @@ public class MainController {
         );
         quantumSpinner.getValueFactory().setValue(3);
         csSpinner.getValueFactory().setValue(1);
+        resetSimulationState();
     }
 
     @FXML
@@ -197,12 +234,16 @@ public class MainController {
     @FXML
     private void handleStep() {
         stopPlayback();
-        if (acsTrace == null && sjfTrace == null) {
+        String currentSig = getCurrentConfigSignature();
+        boolean configChanged = lastSimulatedConfigSignature == null || !currentSig.equals(lastSimulatedConfigSignature);
+
+        if (configChanged || (acsTrace == null && sjfTrace == null)) {
             if (!prepareSimulation()) {
                 return;
             }
             currentStepIndex = -1;
         }
+
         if (currentStepIndex + 1 < getTotalSteps()) {
             currentStepIndex++;
             updateVisualsForCurrentStep();
@@ -214,26 +255,57 @@ public class MainController {
 
     @FXML
     private void handlePlayPause() {
-        if (playTimeline != null) {
+        String currentSig = getCurrentConfigSignature();
+        boolean configChanged = lastSimulatedConfigSignature == null || !currentSig.equals(lastSimulatedConfigSignature);
+
+        if (configChanged) {
             stopPlayback();
-            return;
-        }
-        if (acsTrace == null && sjfTrace == null) {
             if (!prepareSimulation()) {
                 return;
             }
             currentStepIndex = -1;
+        } else {
+            if (playTimeline != null) {
+                stopPlayback();
+                return;
+            }
+            if (acsTrace == null && sjfTrace == null) {
+                if (!prepareSimulation()) {
+                    return;
+                }
+                currentStepIndex = -1;
+            }
         }
+
         if (currentStepIndex >= getTotalSteps() - 1) {
             currentStepIndex = -1;
         }
 
+        startPlayback();
+    }
+
+    private void startPlayback() {
         playPauseButton.setText("Pause");
+
+        if (currentStepIndex < 0 && getTotalSteps() > 0) {
+            currentStepIndex = 0;
+            updateVisualsForCurrentStep();
+            if (currentStepIndex == getTotalSteps() - 1) {
+                showFinalMetrics();
+                stopPlayback();
+                return;
+            }
+        }
+
         double delayMs = 1100.0 - speedSlider.getValue();
         playTimeline = new Timeline(new KeyFrame(Duration.millis(Math.max(80, delayMs)), e -> {
             if (currentStepIndex + 1 < getTotalSteps()) {
                 currentStepIndex++;
                 updateVisualsForCurrentStep();
+                if (currentStepIndex == getTotalSteps() - 1) {
+                    showFinalMetrics();
+                    stopPlayback();
+                }
             } else {
                 showFinalMetrics();
                 stopPlayback();
@@ -245,10 +317,15 @@ public class MainController {
 
     @FXML
     private void handleReset() {
+        resetSimulationState();
+    }
+
+    private void resetSimulationState() {
         stopPlayback();
         acsTrace = null;
         sjfTrace = null;
         lastMetrics = null;
+        lastSimulatedConfigSignature = null;
         currentStepIndex = -1;
         ganttChart.clear();
         queueVisualizer.clear();
@@ -297,6 +374,7 @@ public class MainController {
                 lastMetrics = sjf.getMetrics();
                 traceArea.setText(TraceTableFormatter.formatSjfTrace(sjfTrace));
             }
+            lastSimulatedConfigSignature = getCurrentConfigSignature();
             return true;
         } catch (Exception ex) {
             showError("Simulation Error", ex.getMessage());

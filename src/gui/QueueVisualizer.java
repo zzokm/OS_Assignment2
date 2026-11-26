@@ -11,7 +11,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import model.Process;
 
-
 public class QueueVisualizer extends VBox {
 
     private final Label cpuStatusLabel;

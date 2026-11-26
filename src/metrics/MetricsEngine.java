@@ -4,9 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import model.Process;
 
-/**
- * Computes per-process and aggregate scheduling metrics (TAT, WT, RT).
- */
 public final class MetricsEngine {
     private MetricsEngine() {}
 
